@@ -10,8 +10,8 @@ Type objective_function<Type>::operator() ()
 
   // Parameters
   PARAMETER(mu);
-  PARAMETER(sigma_proc); //to do: may want to put these on log scale for better likelihood surface?
-  PARAMETER(sigma_obs);
+  PARAMETER(log_sigma_proc); //to do: may want to put these on log scale for better likelihood surface?
+  PARAMETER(log_sigma_obs);
 
   // calcs, expected values for time series
   vector<Type> mu_exp(t);
@@ -23,13 +23,13 @@ Type objective_function<Type>::operator() ()
   // objective function
   Type nll = 0.0; // Declare the "objective function" (neg. log. likelihood)
   // Contribution for first 2 equations???
-  nll += -dnorm(mu_exp[0], Type(0.0), sigma_proc, true); //need something like this?
+  nll += -dnorm(mu_exp[0], Type(0.0), exp(log_sigma_proc), true); //need something like this?
   for(int i = 0; i < (t-1); i++) {
-    nll += -dnorm(mu_exp(i+1), mu + mu_exp(i), sigma_proc, true);
+    nll += -dnorm(mu_exp(i+1), mu + mu_exp(i), exp(log_sigma_proc), true);
   }
   // contribution for the y values
   for(int i = 0; i < n; i++) {
-    nll += -sum(dnorm(y(i), mu_exp, sigma_obs, true));
+    nll += -sum(dnorm(y(i), mu_exp, exp(log_sigma_obs), true));
   }
 
   return nll;
