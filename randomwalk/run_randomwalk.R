@@ -2,7 +2,7 @@
 # generate random walk data
 # dimensions and constants
 nyrs <- 20
-nseries <- 5 # we actually just may need 1 series for this example.
+nseries <- 1 # we actually just may need 1 series for this example.
 mu_con <- 0.75
 sigma_proc <- 1
 sigma_obs <- 1
@@ -18,7 +18,7 @@ mu_ts <- lapply(mu_1, function(first_mu, len, mu_con) {
   }
   mu_ts
 }, len = nyrs, mu_con = mu_con)
-names(mu_ts) <- paste0("ts_", 1:nseries)
+names(mu_ts) <- paste0("ts_", seq_len(nseries))
 
 # calculate ys based on mu
 
