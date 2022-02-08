@@ -10,7 +10,7 @@ Type objective_function<Type>::operator() ()
 
   // Parameters
   PARAMETER(mu);
-  PARAMETER(log_sigma_proc); //to do: may want to put these on log scale for better likelihood surface?
+  PARAMETER(log_sigma_proc);
   PARAMETER(log_sigma_obs);
 
   // calcs, expected values for time series
