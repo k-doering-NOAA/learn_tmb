@@ -5,6 +5,12 @@ source("randomwalk/randomwalk_funs.R")
 
 # sample the data ----
 y_dat <- get_y_data(nyrs = 20, nsampy = 50)
+# plot the data
+plot(y_dat$data[1,], type = "l", col = "gray", ylab = "value", xlab = "time")
+for(i in 2:nrow(y_dat$data)) {
+  lines(y_dat$data[i,], type = "l", col = "gray")
+}
+lines(unlist(y_dat$hidden_states), col = "red", type = "o")
 
 # compile and load ----
 compile_and_load_tmb_cpp("randomwalk/randomwalk.cpp")
@@ -29,8 +35,23 @@ print(fit)
 print(fit$par)
 
 # report values ----
-r_fun$report()
+# compare the hidden states ----
+r_fun$report()$mu_exp
+y_dat$hidden_states
+plot(r_fun$report()$mu_exp ~ y_dat$hidden_states)
+lm(r_fun$report()$mu_exp ~ y_dat$hidden_states)
 
+# plot the data and estimates of hidden states
+plot(y_dat$data[1,], type = "l", col = "gray", ylab = "value", xlab = "time")
+for(i in 2:nrow(y_dat$data)) {
+  lines(y_dat$data[i,], type = "l", col = "gray")
+}
+lines(unlist(y_dat$hidden_states), col = "red", type = "o")
+lines(r_fun$report()$mu_exp, col = "blue", type = "o")
+
+# could also plot residuals as a more clear diagnostic.
+
+# other reporting quantities
 reporting <- sdreport(fit)
 summary(reporting, "fixed", p.value = TRUE)
 
@@ -51,14 +72,16 @@ fit2 <- nlminb(start = f_integrated$par,
                lower = c(-10, -10),
                upper = c(10, 10))
 print(fit2)
-# still doesn't work....
 
-# TMB questions ----
+
+# TMB questions and notes -----
 # 1. How to fix a parameter from R?
 # 2. How to get matrix dims within Cpp instead of needing to pass from r? .size function??
 # look at this: http://kaskr.github.io/adcomp/matrix_arrays_8cpp-example.html
+# can also look at eigen documentation
 # 3. Remedial stats help; converting a hierarchical model to TMB. What needs likelihood
-# components?
+# components? Likelihood componenets include the priors and hyperpriors. Any "hidden state" is
+# included as a random effect in the model, and must be a vector in the model.
 
 # Debugging tips and tricks
 # gdb
@@ -66,11 +89,14 @@ print(fit2)
 # REPORT() can also be helpful
 # callr package? can use it to avoid crashes in TMB
 # when to use parentheses or brackets?
-# referencing a column, use parentheses; but needs to be square brackets
+# referencing a column, use parentheses; but needs to be squarse brackets
 # C++ uses square brackets like x[i][j] ; Eigen library has some different
 # stuff
 
 # other stuff
 # Keep vector???OSA = one step ahead (in the random walk tmb example)
 # DATA_VECTOR_INDICATOR
+
+# TODO: learn simulate, indicator vector ----
+#
 
