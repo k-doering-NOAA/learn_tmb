@@ -4,8 +4,6 @@ template<class Type>
 Type objective_function<Type>::operator() ()
 {
   // Data
-  DATA_INTEGER(t); // Length of the y time series (way to calc within tmb?)
-  DATA_INTEGER(n); // Number of time series observed (way to count within tmb?)
   DATA_MATRIX(y); // Has n rows and t columns
 
   //TODO: add mu_exp as a parameter
@@ -17,8 +15,9 @@ Type objective_function<Type>::operator() ()
   PARAMETER_VECTOR(mu_exp);
 
   // objective function
-  Type t_test = y.cols();
-  Type n_test = y.rows();
+  int n = y.rows();
+  int t = y.cols();
+
 
   Type nll = 0.0; // Declare the "objective function" (neg. log. likelihood)
   // Contribution for first equations
@@ -28,11 +27,15 @@ Type objective_function<Type>::operator() ()
   }
   // contribution for the y values
   for(int i = 0; i < n; i++) {
-    nll += -sum(dnorm(y(i), mu_exp, exp(log_sigma_obs), true));
+    for(int j = 0; j < t; j++) {
+      nll += -dnorm(y(i,j), mu_exp(j), exp(log_sigma_obs), true);
+    }
   }
 
-  REPORT(t_test);
-  REPORT(n_test);
+  REPORT(n); // ceck indices being calculated
+  REPORT(t); // check indices being calculated correctly
+  REPORT(mu_exp);
+
 
   return nll;
 }
